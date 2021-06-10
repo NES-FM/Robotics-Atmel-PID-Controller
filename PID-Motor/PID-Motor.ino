@@ -59,7 +59,7 @@ float Ki =    1.4;                                // PID integral control gain  
 
 
 void setup() {
-  Serial.begin(115600);
+  Serial.begin(115200);
   pinMode(InA1, OUTPUT);
   pinMode(InB1, OUTPUT);
   pinMode(PWM1, OUTPUT);
@@ -191,7 +191,7 @@ int updatePid2(int command, int targetValue, int currentValue)   {             /
 }
 
 void printMotorInfo()  {                                                      // display data
-  if ((millis() - lastMilliPrint) >= 100 && Serial.available())   {
+  if ((millis() - lastMilliPrint) >= 100 /*&& Serial.available()*/)   {
     lastMilliPrint = millis();
     Serial.print("1: SP:");             Serial.print(speed_req1);
     Serial.print("  RPM:");          Serial.print(speed_act1);
