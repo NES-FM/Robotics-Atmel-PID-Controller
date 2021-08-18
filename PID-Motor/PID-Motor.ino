@@ -7,14 +7,19 @@
 
 #include <Wire.h>
 
+// Only Temporary until PCB V2
+#include "Adafruit_NeoPixel.h"
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(4, 11, NEO_GRB + NEO_KHZ800);
+
 bool received = false;
 
 byte i2c_command = 0x00;
 byte i2c_value = 0x00;
 
+//Directions are inverted, because the motors are
 #define MOTOR_DIREC_S 0x00
-#define MOTOR_DIREC_B 0x01
-#define MOTOR_DIREC_F 0x02
+#define MOTOR_DIREC_B 0x02
+#define MOTOR_DIREC_F 0x01
 #define MOTOR_DIREC_O 0x03
 
 #define MOTOR_1_SPEED 0x30
@@ -25,14 +30,14 @@ byte i2c_value = 0x00;
 #define TUNE_KP       0x40
 #define TUNE_KI       0x41
 
-#define InA1            7                       // INA motor pin
-#define InB1            8                       // INB motor pin
-#define PWM1            9                       // PWM motor pin
-#define InA2            5                       // INA motor pin
-#define InB2            6                       // INB motor pin
-#define PWM2            10                      // PWM motor pin
-#define encodPinA1      2                       // encoder A pin
-#define encodPinA2      3                       // encoder B pin
+#define In1A            6                       // Motor A
+#define In2A            5
+
+#define In3A            9                       // Motor B
+#define In4A            10
+
+#define encodPinA      2                       // encoder A pin == 1
+#define encodPinB      3                       // encoder B pin == 2
 
 #define LOOPTIME        5                     // PID loop time
 
@@ -57,31 +62,39 @@ static int last_error2 = 0;
 float Kp =   .9;                                // PID proportional control Gain  .4  //.9
 float Ki =    1.4;                                // PID integral control gain       1
 
+int PWM1 = In1A;
+int PWM2 = In3A;
 
 void setup() {
   Serial.begin(115200);
-  pinMode(InA1, OUTPUT);
-  pinMode(InB1, OUTPUT);
-  pinMode(PWM1, OUTPUT);
-  pinMode(encodPinA1, INPUT);
-  pinMode(InA2, OUTPUT);
-  pinMode(InB2, OUTPUT);
-  pinMode(PWM2, OUTPUT);
-  pinMode(encodPinA2, INPUT);
-  digitalWrite(encodPinA1, HIGH);                      // turn on pullup resistor
-  digitalWrite(encodPinA2, HIGH);
-  attachInterrupt(digitalPinToInterrupt(encodPinA1), encoder_1, FALLING);
-  attachInterrupt(digitalPinToInterrupt(encodPinA2), encoder_2, FALLING);
+  pinMode(In1A, OUTPUT);
+  pinMode(In2A, OUTPUT);
+  pinMode(encodPinA, INPUT);
+  pinMode(In3A, OUTPUT);
+  pinMode(In4A, OUTPUT);
+  pinMode(encodPinB, INPUT);
+  digitalWrite(encodPinA, HIGH);                      // turn on pullup resistor
+  digitalWrite(encodPinB, HIGH);
+  attachInterrupt(digitalPinToInterrupt(encodPinA), encoder_1, FALLING);
+  attachInterrupt(digitalPinToInterrupt(encodPinB), encoder_2, FALLING);
 
+
+  digitalWrite(In1A, LOW);
+  digitalWrite(In2A, LOW);
+  digitalWrite(In3A, LOW);
+  digitalWrite(In4A, LOW);
   analogWrite(PWM1, PWM_val1);
-  digitalWrite(InA1, LOW);
-  digitalWrite(InB1, LOW);
   analogWrite(PWM2, PWM_val2);
-  digitalWrite(InA2, LOW);
-  digitalWrite(InB2, LOW);
 
   Wire.begin(0x08);                // join i2c bus with address #8
   Wire.onReceive(receiveEvent);    // register event
+
+  // Only Temporary til PCB V2
+  pixels.begin();
+  pixels.show();
+
+  pixels.fill(pixels.Color(156, 156, 156));
+  pixels.show();
 }
 
 void loop() {
@@ -96,6 +109,7 @@ void loop() {
 
   if (received)
   {
+    Serial.print("Received: "); Serial.print(i2c_command); Serial.print(" "); Serial.println(i2c_value);
     switch (i2c_command) {
       case MOTOR_1_SPEED:
         speed_req1 = int(i2c_value);
@@ -105,20 +119,22 @@ void loop() {
       case MOTOR_1_DIREC:
         switch (i2c_value) {
           case MOTOR_DIREC_S:
-            digitalWrite(InA1, HIGH);
-            digitalWrite(InB1, HIGH);
+            digitalWrite(In1A, HIGH);
+            digitalWrite(In2A, HIGH);
             break;
           case MOTOR_DIREC_B:
-            digitalWrite(InA1, LOW);
-            digitalWrite(InB1, HIGH);
+            digitalWrite(In1A, LOW);
+            PWM1 = In2A;
+            analogWrite(PWM1, PWM_val1);                                                         // send PWM to motor
             break;
           case MOTOR_DIREC_F:
-            digitalWrite(InA1, HIGH);
-            digitalWrite(InB1, LOW);
+            digitalWrite(In2A, LOW);
+            PWM1 = In1A;
+            analogWrite(PWM1, PWM_val1);
             break;
           case MOTOR_DIREC_O:
-            digitalWrite(InA1, LOW);
-            digitalWrite(InB1, LOW);
+            digitalWrite(In1A, LOW);
+            digitalWrite(In2A, LOW);
             break;
         }
         break;
@@ -131,20 +147,22 @@ void loop() {
       case MOTOR_2_DIREC:
         switch (i2c_value) {
           case MOTOR_DIREC_S:
-            digitalWrite(InA2, HIGH);
-            digitalWrite(InB2, HIGH);
+            digitalWrite(In3A, HIGH);
+            digitalWrite(In4A, HIGH);
             break;
           case MOTOR_DIREC_B:
-            digitalWrite(InA2, LOW);
-            digitalWrite(InB2, HIGH);
+            digitalWrite(In3A, LOW);
+            PWM2 = In4A;
+            analogWrite(PWM2, PWM_val2);
             break;
           case MOTOR_DIREC_F:
-            digitalWrite(InA2, HIGH);
-            digitalWrite(InB2, LOW);
+            digitalWrite(In4A, LOW);
+            PWM2 = In3A;
+            analogWrite(PWM2, PWM_val2);
             break;
           case MOTOR_DIREC_O:
-            digitalWrite(InA2, LOW);
-            digitalWrite(InB2, LOW);
+            digitalWrite(In3A, LOW);
+            digitalWrite(In4A, LOW);
             break;
         }
         break;
@@ -193,12 +211,14 @@ int updatePid2(int command, int targetValue, int currentValue)   {             /
 void printMotorInfo()  {                                                      // display data
   if ((millis() - lastMilliPrint) >= 100 /*&& Serial.available()*/)   {
     lastMilliPrint = millis();
-    Serial.print("1: SP:");             Serial.print(speed_req1);
-    Serial.print("  RPM:");          Serial.print(speed_act1);
-    Serial.print("  PWM:");          Serial.print(PWM_val1);
-    Serial.print("\t2: SP:");             Serial.print(speed_req2);
-    Serial.print("  RPM:");          Serial.print(speed_act2);
-    Serial.print("  PWM:");          Serial.print(PWM_val2);
+    Serial.print("1 A left: SP:");             Serial.print(speed_req1);
+    Serial.print(" RPM:");          Serial.print(speed_act1);
+    Serial.print(" PWM:");          Serial.print(PWM_val1);
+    Serial.print(" PWM1:");          Serial.print(PWM1);
+    Serial.print("\t2 B right: SP:");             Serial.print(speed_req2);
+    Serial.print(" RPM:");          Serial.print(speed_act2);
+    Serial.print(" PWM:");          Serial.print(PWM_val2);
+    Serial.print(" PWM2:");          Serial.print(PWM2);
 
     Serial.println(".");
   }
