@@ -107,82 +107,82 @@ void loop() {
     analogWrite(PWM2, PWM_val2);                                              // send PWM to motor
   }
 
-  if (received)
-  {
-    Serial.print("Received: "); Serial.print(i2c_command); Serial.print(" "); Serial.println(i2c_value);
-    switch (i2c_command) {
-      case MOTOR_1_SPEED:
-        speed_req1 = int(i2c_value);
-        PWM_val1 = updatePid1(PWM_val1, speed_req1, speed_act1);                       // compute PWM value
-        analogWrite(PWM1, PWM_val1);                                                         // send PWM to motor
-        break;
-      case MOTOR_1_DIREC:
-        switch (i2c_value) {
-          case MOTOR_DIREC_S:
-            digitalWrite(In1A, HIGH);
-            digitalWrite(In2A, HIGH);
-            break;
-          case MOTOR_DIREC_B:
-            digitalWrite(In1A, LOW);
-            PWM1 = In2A;
-            analogWrite(PWM1, PWM_val1);                                                         // send PWM to motor
-            break;
-          case MOTOR_DIREC_F:
-            digitalWrite(In2A, LOW);
-            PWM1 = In1A;
-            analogWrite(PWM1, PWM_val1);
-            break;
-          case MOTOR_DIREC_O:
-            digitalWrite(In1A, LOW);
-            digitalWrite(In2A, LOW);
-            break;
-        }
-        break;
+  // if (received)
+  // {
+  //   Serial.print("Received: "); Serial.print(i2c_command); Serial.print(" "); Serial.println(i2c_value);
+  //   switch (i2c_command) {
+  //     case MOTOR_1_SPEED:
+  //       speed_req1 = int(i2c_value);
+  //       PWM_val1 = updatePid1(PWM_val1, speed_req1, speed_act1);                       // compute PWM value
+  //       analogWrite(PWM1, PWM_val1);                                                         // send PWM to motor
+  //       break;
+  //     case MOTOR_1_DIREC:
+  //       switch (i2c_value) {
+  //         case MOTOR_DIREC_S:
+  //           digitalWrite(In1A, HIGH);
+  //           digitalWrite(In2A, HIGH);
+  //           break;
+  //         case MOTOR_DIREC_B:
+  //           digitalWrite(In1A, LOW);
+  //           PWM1 = In2A;
+  //           analogWrite(PWM1, PWM_val1);                                                         // send PWM to motor
+  //           break;
+  //         case MOTOR_DIREC_F:
+  //           digitalWrite(In2A, LOW);
+  //           PWM1 = In1A;
+  //           analogWrite(PWM1, PWM_val1);
+  //           break;
+  //         case MOTOR_DIREC_O:
+  //           digitalWrite(In1A, LOW);
+  //           digitalWrite(In2A, LOW);
+  //           break;
+  //       }
+  //       break;
 
-      case MOTOR_2_SPEED:
-        speed_req2 = int(i2c_value);
-        PWM_val2 = updatePid2(PWM_val2, speed_req2, speed_act2);                       // compute PWM value
-        analogWrite(PWM2, PWM_val2);                                                         // send PWM to motor
-        break;
-      case MOTOR_2_DIREC:
-        switch (i2c_value) {
-          case MOTOR_DIREC_S:
-            digitalWrite(In3A, HIGH);
-            digitalWrite(In4A, HIGH);
-            break;
-          case MOTOR_DIREC_B:
-            digitalWrite(In3A, LOW);
-            PWM2 = In4A;
-            analogWrite(PWM2, PWM_val2);
-            break;
-          case MOTOR_DIREC_F:
-            digitalWrite(In4A, LOW);
-            PWM2 = In3A;
-            analogWrite(PWM2, PWM_val2);
-            break;
-          case MOTOR_DIREC_O:
-            digitalWrite(In3A, LOW);
-            digitalWrite(In4A, LOW);
-            break;
-        }
-        break;
+  //     case MOTOR_2_SPEED:
+  //       speed_req2 = int(i2c_value);
+  //       PWM_val2 = updatePid2(PWM_val2, speed_req2, speed_act2);                       // compute PWM value
+  //       analogWrite(PWM2, PWM_val2);                                                         // send PWM to motor
+  //       break;
+  //     case MOTOR_2_DIREC:
+  //       switch (i2c_value) {
+  //         case MOTOR_DIREC_S:
+  //           digitalWrite(In3A, HIGH);
+  //           digitalWrite(In4A, HIGH);
+  //           break;
+  //         case MOTOR_DIREC_B:
+  //           digitalWrite(In3A, LOW);
+  //           PWM2 = In4A;
+  //           analogWrite(PWM2, PWM_val2);
+  //           break;
+  //         case MOTOR_DIREC_F:
+  //           digitalWrite(In4A, LOW);
+  //           PWM2 = In3A;
+  //           analogWrite(PWM2, PWM_val2);
+  //           break;
+  //         case MOTOR_DIREC_O:
+  //           digitalWrite(In3A, LOW);
+  //           digitalWrite(In4A, LOW);
+  //           break;
+  //       }
+  //       break;
 
-      case TUNE_KP:
-        Serial.print("Old Kp: "); Serial.print(Kp);
-        Kp = float(int(i2c_value) / 100);
-        Serial.print("\tNew Kp: "); Serial.println(Kp);
-        break;
+  //     case TUNE_KP:
+  //       Serial.print("Old Kp: "); Serial.print(Kp);
+  //       Kp = float(int(i2c_value) / 100);
+  //       Serial.print("\tNew Kp: "); Serial.println(Kp);
+  //       break;
         
-      case TUNE_KI:
-        Serial.print("Old Ki: "); Serial.print(Ki);
-        Ki = float(int(i2c_value) / 100);
-        Serial.print("\tNew Ki: "); Serial.println(Ki);
-        break;
+  //     case TUNE_KI:
+  //       Serial.print("Old Ki: "); Serial.print(Ki);
+  //       Ki = float(int(i2c_value) / 100);
+  //       Serial.print("\tNew Ki: "); Serial.println(Ki);
+  //       break;
         
 
-    }
-    received = false;
-  }
+  //   }
+  //   received = false;
+  // }
 
   printMotorInfo();                                                           // display data
 }
@@ -209,7 +209,7 @@ int updatePid2(int command, int targetValue, int currentValue)   {             /
 }
 
 void printMotorInfo()  {                                                      // display data
-  if ((millis() - lastMilliPrint) >= 100 /*&& Serial.available()*/)   {
+  if ((millis() - lastMilliPrint) >= 100 && Serial.available())   {
     lastMilliPrint = millis();
     Serial.print("1 A left: SP:");             Serial.print(speed_req1);
     Serial.print(" RPM:");          Serial.print(speed_act1);
@@ -236,5 +236,62 @@ void receiveEvent(int howMany) {
     i2c_command = Wire.read(); // receive byte as a character
   }
   i2c_value = Wire.read();    // receive byte as an integer
-  received = true;
+  // received = true;
+    if (Serial.available())
+        Serial.print("Received: "); Serial.print(i2c_command); Serial.print(" "); Serial.println(i2c_value);
+
+
+  switch (i2c_command) {
+      case MOTOR_1_SPEED:
+        speed_req1 = int(i2c_value);
+        break;
+      case MOTOR_1_DIREC:
+        switch (i2c_value) {
+          case MOTOR_DIREC_S:
+            digitalWrite(In1A, HIGH);
+            digitalWrite(In2A, HIGH);
+            break;
+          case MOTOR_DIREC_B:
+            digitalWrite(In1A, LOW);
+            PWM1 = In2A;
+            analogWrite(PWM1, PWM_val1);                                                         // send PWM to motor
+            break;
+          case MOTOR_DIREC_F:
+            digitalWrite(In2A, LOW);
+            PWM1 = In1A;
+            analogWrite(PWM1, PWM_val1);
+            break;
+          case MOTOR_DIREC_O:
+            digitalWrite(In1A, LOW);
+            digitalWrite(In2A, LOW);
+            break;
+        }
+        break;
+
+      case MOTOR_2_SPEED:
+        speed_req2 = int(i2c_value);
+        break;
+      case MOTOR_2_DIREC:
+        switch (i2c_value) {
+          case MOTOR_DIREC_S:
+            digitalWrite(In3A, HIGH);
+            digitalWrite(In4A, HIGH);
+            break;
+          case MOTOR_DIREC_B:
+            digitalWrite(In3A, LOW);
+            PWM2 = In4A;
+            analogWrite(PWM2, PWM_val2);
+            break;
+          case MOTOR_DIREC_F:
+            digitalWrite(In4A, LOW);
+            PWM2 = In3A;
+            analogWrite(PWM2, PWM_val2);
+            break;
+          case MOTOR_DIREC_O:
+            digitalWrite(In3A, LOW);
+            digitalWrite(In4A, LOW);
+            break;
+        }
+        break;
+    }
 }
