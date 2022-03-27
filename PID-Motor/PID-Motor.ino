@@ -8,8 +8,8 @@
 #include <Wire.h>
 
 // Only Temporary until PCB V2
-#include "Adafruit_NeoPixel.h"
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(4, 11, NEO_GRB + NEO_KHZ800);
+// #include "Adafruit_NeoPixel.h"
+// Adafruit_NeoPixel pixels = Adafruit_NeoPixel(4, 11, NEO_GRB + NEO_KHZ800);
 
 bool received = false;
 
@@ -66,6 +66,11 @@ int PWM1 = In1A;
 int PWM2 = In3A;
 
 void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(500);
+  digitalWrite(LED_BUILTIN, LOW);
+  
   Serial.begin(115200);
   pinMode(In1A, OUTPUT);
   pinMode(In2A, OUTPUT);
@@ -90,11 +95,11 @@ void setup() {
   Wire.onReceive(receiveEvent);    // register event
 
   // Only Temporary til PCB V2
-  pixels.begin();
-  pixels.show();
+  // pixels.begin();
+  // pixels.show();
 
-  pixels.fill(pixels.Color(156, 156, 156));
-  pixels.show();
+  // pixels.fill(pixels.Color(156, 156, 156));
+  // pixels.show();
 }
 
 void loop() {
