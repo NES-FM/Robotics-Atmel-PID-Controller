@@ -2,6 +2,10 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"name": "PID-Motor-V2",
+			"path": "PID-Motor-V2\\PID-Motor-V2"
 		}
 	],
 	"settings": {}
