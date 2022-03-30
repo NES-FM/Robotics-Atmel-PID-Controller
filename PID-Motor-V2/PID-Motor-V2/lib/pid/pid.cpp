@@ -20,6 +20,9 @@ void pid::tick(volatile long encoder_count)
         getMotorData(encoder_count);  // Calculate Current Speed
         calculateNewPwmValue();
         analogWrite(_pwm_pin, PWM_val);
+
+        // printMotorInfo();
+        // Serial.println();
     }
 }
 
@@ -75,4 +78,9 @@ void pid::setTargetDirection(direction direction)
 void pid::printMotorInfo()
 {
     Serial.printf("SP: %d, RPM: %d, PWM: %d, PWM_PIN: %d", speed_setpoint, speed_actual, PWM_val, _pwm_pin);
+    // Serial.printf("Speed_Setpoint:%d Current_Speed:%d PWM_Value:", speed_setpoint, speed_actual);
+    // Serial.print(((float)PWM_val)/10);
+    // Serial.print(" Kp:"); Serial.print(Kp);
+    // Serial.print(" Ki:"); Serial.print(Ki);
+    // Serial.print(" Kd:"); Serial.print(Kd);
 }

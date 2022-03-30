@@ -19,6 +19,10 @@ class pid
         void setTargetSpeed(int speed) { speed_setpoint = speed; };
         void setTargetDirection(direction direction);
 
+        void setP(float p) { Kp = p; };
+        void setI(float i) { Ki = i; };
+        void setD(float d) { Kd = d; };
+
         void printMotorInfo();
     private:
         int _pin_1;
@@ -28,7 +32,7 @@ class pid
 
         long last_encoder_count = 0;
 
-        int looptime = 5;                               // How often the loop gets executed
+        int looptime = 20;                               // How often the loop gets executed
 
         unsigned long lastMilli = 0;                    // loop timing
 
@@ -40,9 +44,16 @@ class pid
         int last_error = 0;
         int accumulated_error = 0;
 
-        float Kp = 0.9;                                // PID proportional control Gain
-        float Ki = 0.0;                                // PID integral control Gain
-        float Kd = 0.1;                                // PID derivative control Gain
+        // http://www.pcbheaven.com/wikipages/PID_Theory/?p=1
+        // Kc: 6.9
+        // Pc: 0.285
+        // Kp = 0.60 x Kc => 4.14
+        // Ki = 0.5 x Pc => 0.1425
+        // Kd = Pc / 8 => 0.035625  
+
+        float Kp = 0.9;//2;// Old: 0.9;                                // PID proportional control Gain
+        float Ki = 0.0;//0.5;// Old: 0.0;                                // PID integral control Gain
+        float Kd = 1.4;//1.5;// Old: 0.1;                                // PID derivative control Gain
 
         void getMotorData(volatile long encoder_count);
         void calculateNewPwmValue();

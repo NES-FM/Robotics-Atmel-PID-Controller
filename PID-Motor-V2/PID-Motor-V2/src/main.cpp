@@ -19,6 +19,9 @@ comm comunication;
 
 unsigned long lastPrintMillis = 0;
 
+unsigned long lastChangeMillis = 0;
+unsigned long lastChangeMillisFutureTime = 10000;
+bool lastSpeed = false;
 
 void setup() 
 {
@@ -37,6 +40,10 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(PIN_MOTOR_B_ENC), motor_right_isr, FALLING);
 
     comunication.init(&motor_l, &motor_r);
+    motor_l.setTargetSpeed(50);
+    motor_r.setTargetSpeed(0);
+
+    lastChangeMillis = millis();
 }
 
 void loop() {
@@ -49,8 +56,38 @@ void loop() {
         Serial.println("");
     }
 
+    // if ((millis() - lastChangeMillis) >= lastChangeMillisFutureTime)
+    // {
+    //     lastChangeMillis = millis();
+    //     if (lastSpeed)
+    //     {
+    //         motor_l.setTargetSpeed(0);
+    //         lastChangeMillisFutureTime = 3000;
+    //     }
+    //     else
+    //     {
+    //         motor_l.setTargetSpeed(40);
+    //         lastChangeMillisFutureTime =10000;
+    //     }
+        
+    //     lastSpeed = !lastSpeed;
+    // }
+
     comunication.tick();
 
     motor_l.tick(motor_l_encoder_count);
     motor_r.tick(motor_r_encoder_count);
+
+    // if (Serial.available())
+    // {
+    //     String message = Serial.readStringUntil('\n');
+    //     if (message.startsWith("P"))
+    //     {
+    //         motor_l.setP(message.substring(1).toFloat());
+    //     }
+    //     else if (message.startsWith("I"))
+    //         motor_l.setI(message.substring(1).toFloat());
+    //     else if (message.startsWith("D"))
+    //         motor_l.setD(message.substring(1).toFloat());
+    // }
 }
