@@ -15,10 +15,10 @@ void comm::init(pid* m1, pid* m2)
 
 void comm::receiveEvent(int howMany)
 {
-    while (1 < Wire.available()) { // loop through all but the last
-        i2c_command = Wire.read(); // receive byte as a character
-    }
-    i2c_value = Wire.read();    // receive byte as an integer
+    // while (1 < Wire.available()) { // loop through all but the last
+    //     i2c_command = Wire.read(); // receive byte as a character
+    // }
+    // i2c_value = Wire.read();    // receive byte as an integer
     
     if (Serial.available())
     {
@@ -32,46 +32,51 @@ void comm::tick()
 {
     if (received)
     {
-        switch (i2c_command) {
-            case MOTOR_1_SPEED:
-                motor_1->setTargetSpeed(int(i2c_value));
-                break;
-            case MOTOR_1_DIREC:
-                switch (i2c_value) {
-                case MOTOR_DIREC_S:
-                    motor_1->setTargetDirection(motor_1->stop);
+        while(Wire.available() > 1)
+        {
+            i2c_command = Wire.read();
+            i2c_value = Wire.read();
+            switch (i2c_command) {
+                case MOTOR_1_SPEED:
+                    motor_1->setTargetSpeed(int(i2c_value));
                     break;
-                case MOTOR_DIREC_B:
-                    motor_1->setTargetDirection(motor_1->back);
+                case MOTOR_1_DIREC:
+                    switch (i2c_value) {
+                    case MOTOR_DIREC_S:
+                        motor_1->setTargetDirection(motor_1->stop);
+                        break;
+                    case MOTOR_DIREC_B:
+                        motor_1->setTargetDirection(motor_1->back);
+                        break;
+                    case MOTOR_DIREC_F:
+                        motor_1->setTargetDirection(motor_1->forward);
+                        break;
+                    case MOTOR_DIREC_O:
+                        motor_1->setTargetDirection(motor_1->off);
+                        break;
+                    }
                     break;
-                case MOTOR_DIREC_F:
-                    motor_1->setTargetDirection(motor_1->forward);
-                    break;
-                case MOTOR_DIREC_O:
-                    motor_1->setTargetDirection(motor_1->off);
-                    break;
-                }
-                break;
 
-            case MOTOR_2_SPEED:
-                motor_2->setTargetSpeed(int(i2c_value));
-                break;
-            case MOTOR_2_DIREC:
-                switch (i2c_value) {
-                case MOTOR_DIREC_S:
-                    motor_2->setTargetDirection(motor_2->stop);
+                case MOTOR_2_SPEED:
+                    motor_2->setTargetSpeed(int(i2c_value));
                     break;
-                case MOTOR_DIREC_B:
-                    motor_2->setTargetDirection(motor_2->back);
+                case MOTOR_2_DIREC:
+                    switch (i2c_value) {
+                    case MOTOR_DIREC_S:
+                        motor_2->setTargetDirection(motor_2->stop);
+                        break;
+                    case MOTOR_DIREC_B:
+                        motor_2->setTargetDirection(motor_2->back);
+                        break;
+                    case MOTOR_DIREC_F:
+                        motor_2->setTargetDirection(motor_2->forward);
+                        break;
+                    case MOTOR_DIREC_O:
+                        motor_2->setTargetDirection(motor_2->off);
+                        break;
+                    }
                     break;
-                case MOTOR_DIREC_F:
-                    motor_2->setTargetDirection(motor_2->forward);
-                    break;
-                case MOTOR_DIREC_O:
-                    motor_2->setTargetDirection(motor_2->off);
-                    break;
-                }
-                break;
+            }
         }
     }
 }
