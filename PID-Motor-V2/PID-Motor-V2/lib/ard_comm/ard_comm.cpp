@@ -1,5 +1,6 @@
 #include "ard_comm.h"
 
+#ifndef comm_v2
 bool comm::received = false;
 byte comm::i2c_command = 0x00;
 byte comm::i2c_value = 0x00;
@@ -80,3 +81,62 @@ void comm::tick()
         }
     }
 }
+#else
+void comm::init(pid* m1, pid* m2)
+{
+    Wire.begin(I2C_ADDRESS);
+
+    motor_1 = m1;
+    motor_2 = m2;
+}
+
+void comm::receiveEvent(int howMany)
+{
+    if (Serial.available() > 0)
+    { Serial.print("Received Wire event of size: "); Serial.println(howMany); }
+
+    switch (howMany)
+    {
+        case sizeof(stop_command):
+            _rx_received_type = received_stop;
+            break;
+        case sizeof(drive_command):
+            _rx_received_type = received_drive;
+            break;
+        case sizeof(move_steps_command):
+            _rx_received_type = received_move_steps;
+            break;
+        default:
+            _rx_received_type = received_none;
+            break;
+    }    
+}
+
+void comm::tick()
+{
+    if (_rx_received_type != received_none)
+    {
+        switch (_rx_received_type)
+        {
+            case received_stop:
+                Wire.readBytes((byte*) &_rx_stop_command, sizeof(stop_command));
+                if (Serial.available() > 0)
+                { Serial.print("Stopping with Motor_Num: "); Serial.print(_rx_stop_command.motor_num); Serial.print(" Type: "); Serial.println(_rx_stop_command.type); }
+                break;
+            case received_drive:
+                Wire.readBytes((byte*) &_rx_drive_command, sizeof(drive_command));
+                if (Serial.available() > 0)
+                { Serial.print("Driving with Motor_Num: "); Serial.print(_rx_drive_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_drive_command.speed); Serial.print(" Direction: "); Serial.println(_rx_drive_command.direction); }
+                break;
+            case received_move_steps:
+                Wire.readBytes((byte*) &_rx_move_steps_command, sizeof(move_steps_command));
+                if (Serial.available() > 0)
+                { Serial.print("Driving with Motor_Num: "); Serial.print(_rx_move_steps_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_move_steps_command.speed); Serial.print(" Direction: "); Serial.print(_rx_move_steps_command.direction); Serial.print(" Steps: "); Serial.println(_rx_move_steps_command.steps); }
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+#endif

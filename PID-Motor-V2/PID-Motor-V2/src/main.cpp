@@ -14,8 +14,8 @@ pid motor_r(PIN_MOTOR_B_1, PIN_MOTOR_B_2, PIN_MOTOR_B_ENC);
 
 
 #include "ard_comm.h"
-comm comunication;
-
+comm comunication; 
+void wire_receive_event(int num_bytes) { comunication.receiveEvent(num_bytes); }
 
 unsigned long lastPrintMillis = 0;
 
@@ -35,13 +35,15 @@ void setup()
 
     motor_l.init();
     motor_r.init();
+    motor_l.setTargetSpeed(0);
+    motor_r.setTargetSpeed(0);
 
     attachInterrupt(digitalPinToInterrupt(PIN_MOTOR_A_ENC), motor_left_isr, FALLING);
     attachInterrupt(digitalPinToInterrupt(PIN_MOTOR_B_ENC), motor_right_isr, FALLING);
 
     comunication.init(&motor_l, &motor_r);
-    motor_l.setTargetSpeed(50);
-    motor_r.setTargetSpeed(0);
+
+    Wire.onReceive(wire_receive_event);
 
     lastChangeMillis = millis();
 }
