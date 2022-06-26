@@ -34,12 +34,8 @@ class comm
     private:
         pid* motor_1;
         pid* motor_2;
-        
-        #define stop_type_stop 0
-        #define stop_type_off 1
 
-        #define move_direction_forward 0
-        #define move_direction_backward 1
+        pid* both_motors[2];
 
         struct stop_command {
             uint8_t motor_num;        // + 1 byte

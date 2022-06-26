@@ -1,11 +1,12 @@
 #pragma once
 
 #include <Arduino.h>
+#include "../../include/i2c_registers.h"
 
 class pid
 {
     public:
-        pid(int PIN_1, int PIN_2, int ENC_PIN): _pin_1{PIN_1}, _pin_2{PIN_2}, _enc_pin{ENC_PIN}, _pwm_pin{PIN_1} {};
+        pid(int PIN_1, int PIN_2, int ENC_PIN, bool inverted = false);
         void init();
         void tick(volatile long encoder_count);
 
@@ -18,6 +19,8 @@ class pid
 
         void setTargetSpeed(int speed) { speed_setpoint = speed; };
         void setTargetDirection(direction direction);
+        void setStop(int stop_type);
+        void setDrive(int drive_direction, int speed);
 
         void setP(float p) { Kp = p; };
         void setI(float i) { Ki = i; };
@@ -29,6 +32,8 @@ class pid
         int _pin_2;
         int _enc_pin;
         int _pwm_pin;
+
+        bool _inverted = false;
 
         long last_encoder_count = 0;
 
@@ -57,4 +62,12 @@ class pid
 
         void getMotorData(volatile long encoder_count);
         void calculateNewPwmValue();
+
+        enum current_modes {
+            currently_stopped,
+            currently_moving_speed,
+            currently_moving_steps,
+            currently_stopped_from_moving_steps_reached_limit
+        };
+        current_modes current_mode = currently_stopped;
 };

@@ -88,23 +88,50 @@ void comm::init(pid* m1, pid* m2)
 
     motor_1 = m1;
     motor_2 = m2;
+
+    both_motors[0] = m1;
+    both_motors[1] = m2;
 }
 
 void comm::receiveEvent(int howMany)
 {
-    if (Serial.available() > 0)
-    { Serial.print("Received Wire event of size: "); Serial.println(howMany); }
+    // if (Serial.available() > 0)
+    // { 
+        Serial.print("Received Wire event of size: "); Serial.println(howMany); 
+    // }
 
     switch (howMany)
     {
         case sizeof(stop_command):
-            _rx_received_type = received_stop;
+            Wire.readBytes((byte*) &_rx_stop_command, sizeof(stop_command));
+
+            // if (Serial.available() > 0)
+            {
+                Serial.print("Stopping with Motor_Num: "); Serial.print(_rx_stop_command.motor_num); Serial.print(" Type: "); Serial.println(_rx_stop_command.type); 
+            }
+
+            both_motors[_rx_stop_command.motor_num - 1]->setStop(_rx_stop_command.type);
+
             break;
         case sizeof(drive_command):
-            _rx_received_type = received_drive;
+            Wire.readBytes((byte*) &_rx_drive_command, sizeof(drive_command));
+
+            // if (Serial.available() > 0)
+            { 
+                Serial.print("Driving with Motor_Num: "); Serial.print(_rx_drive_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_drive_command.speed); Serial.print(" Direction: "); Serial.println(_rx_drive_command.direction); 
+            }
+
+            both_motors[_rx_drive_command.motor_num - 1]->setDrive(_rx_drive_command.direction, _rx_drive_command.speed);
+
             break;
         case sizeof(move_steps_command):
-            _rx_received_type = received_move_steps;
+            Wire.readBytes((byte*) &_rx_move_steps_command, sizeof(move_steps_command));
+
+            // if (Serial.available() > 0)
+            { 
+                Serial.print("Driving with Motor_Num: "); Serial.print(_rx_move_steps_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_move_steps_command.speed); Serial.print(" Direction: "); Serial.print(_rx_move_steps_command.direction); Serial.print(" Steps: "); Serial.println(_rx_move_steps_command.steps); 
+            }
+
             break;
         default:
             _rx_received_type = received_none;
@@ -114,29 +141,23 @@ void comm::receiveEvent(int howMany)
 
 void comm::tick()
 {
-    if (_rx_received_type != received_none)
-    {
-        switch (_rx_received_type)
-        {
-            case received_stop:
-                Wire.readBytes((byte*) &_rx_stop_command, sizeof(stop_command));
-                if (Serial.available() > 0)
-                { Serial.print("Stopping with Motor_Num: "); Serial.print(_rx_stop_command.motor_num); Serial.print(" Type: "); Serial.println(_rx_stop_command.type); }
-                break;
-            case received_drive:
-                Wire.readBytes((byte*) &_rx_drive_command, sizeof(drive_command));
-                if (Serial.available() > 0)
-                { Serial.print("Driving with Motor_Num: "); Serial.print(_rx_drive_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_drive_command.speed); Serial.print(" Direction: "); Serial.println(_rx_drive_command.direction); }
-                break;
-            case received_move_steps:
-                Wire.readBytes((byte*) &_rx_move_steps_command, sizeof(move_steps_command));
-                if (Serial.available() > 0)
-                { Serial.print("Driving with Motor_Num: "); Serial.print(_rx_move_steps_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_move_steps_command.speed); Serial.print(" Direction: "); Serial.print(_rx_move_steps_command.direction); Serial.print(" Steps: "); Serial.println(_rx_move_steps_command.steps); }
-                break;
-            default:
-                break;
-        }
-    }
+    // if (_rx_received_type != received_none)
+    // {
+    //     switch (_rx_received_type)
+    //     {
+    //         case received_stop:
+                
+    //         case received_drive:
+                
+    //             break;
+    //         case received_move_steps:
+                
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    //     _rx_received_type = received_none;
+    // }
 }
 
 #endif

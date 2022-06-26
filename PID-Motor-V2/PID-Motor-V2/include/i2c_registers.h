@@ -15,3 +15,10 @@
 #define TUNE_KI       0x41
 
 #define I2C_ADDRESS   0x08
+
+// -- Comm_v2 --
+#define stop_type_stop 0
+#define stop_type_off 1
+
+#define move_direction_forward 0
+#define move_direction_backward 1

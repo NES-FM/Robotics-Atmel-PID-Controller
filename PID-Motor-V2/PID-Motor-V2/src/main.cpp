@@ -9,8 +9,8 @@ volatile long motor_r_encoder_count = 0;
 void motor_left_isr() { motor_l_encoder_count++; }
 void motor_right_isr() { motor_r_encoder_count++; }
 
-pid motor_l(PIN_MOTOR_A_1, PIN_MOTOR_A_2, PIN_MOTOR_A_ENC);
-pid motor_r(PIN_MOTOR_B_1, PIN_MOTOR_B_2, PIN_MOTOR_B_ENC);
+pid motor_l(PIN_MOTOR_A_1, PIN_MOTOR_A_2, PIN_MOTOR_A_ENC, true);
+pid motor_r(PIN_MOTOR_B_1, PIN_MOTOR_B_2, PIN_MOTOR_B_ENC, true);
 
 
 #include "ard_comm.h"
