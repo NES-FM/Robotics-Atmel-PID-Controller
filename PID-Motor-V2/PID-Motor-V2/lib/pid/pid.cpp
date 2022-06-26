@@ -51,6 +51,11 @@ void pid::getMotorData(volatile long encoder_count)
 
 void pid::calculateNewPwmValue()
 {
+    if (first_move_after_stop)
+    {
+        first_move_after_stop = false;
+        return;
+    }
     int error = abs(speed_setpoint) - abs(speed_actual);
     
     float PValue = error * Kp;
@@ -103,6 +108,7 @@ void pid::setStop(int stop_type)
         setTargetDirection(direction::off);
     }
     current_mode = currently_stopped;
+    first_move_after_stop = true;
 }
 
 void pid::setDrive(int drive_direction, int speed)

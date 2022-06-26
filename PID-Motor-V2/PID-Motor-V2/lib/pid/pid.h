@@ -17,8 +17,6 @@ class pid
             off
         } direction;
 
-        void setTargetSpeed(int speed) { speed_setpoint = speed; };
-        void setTargetDirection(direction direction);
         void setStop(int stop_type);
         void setDrive(int drive_direction, int speed);
 
@@ -27,7 +25,12 @@ class pid
         void setD(float d) { Kd = d; };
 
         void printMotorInfo();
+
+        bool first_move_after_stop = false;
     private:
+        void setTargetSpeed(int speed) { speed_setpoint = speed; };
+        void setTargetDirection(direction direction);
+        
         int _pin_1;
         int _pin_2;
         int _enc_pin;

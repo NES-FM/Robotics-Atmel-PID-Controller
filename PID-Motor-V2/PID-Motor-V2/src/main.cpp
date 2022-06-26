@@ -35,9 +35,9 @@ void setup()
 
     motor_l.init();
     motor_r.init();
-    motor_l.setTargetSpeed(0);
-    motor_r.setTargetSpeed(0);
-
+    motor_l.setStop(stop_type_stop);
+    motor_r.setStop(stop_type_stop);
+    
     attachInterrupt(digitalPinToInterrupt(PIN_MOTOR_A_ENC), motor_left_isr, FALLING);
     attachInterrupt(digitalPinToInterrupt(PIN_MOTOR_B_ENC), motor_right_isr, FALLING);
 
