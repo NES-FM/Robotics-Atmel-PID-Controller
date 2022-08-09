@@ -41,11 +41,25 @@ void pid::tick(volatile long encoder_count)
         // printMotorInfo();
         // Serial.println();
     }
+
+    if (current_mode == currently_moving_steps)
+    {
+        if (cur_dir == direction::back && last_encoder_count < (target_encoder_count + 10)) // +10 gives a little bit of headroom
+        {
+            setStop(stop_type_stop);
+            current_mode = currently_stopped_from_moving_steps_reached_limit;
+        }
+        else if (cur_dir == direction::forward && last_encoder_count > (target_encoder_count - 10))
+        {
+            setStop(stop_type_stop);
+            current_mode = currently_stopped_from_moving_steps_reached_limit;
+        }
+    }
 }
 
 void pid::getMotorData(volatile long encoder_count)
 {
-    speed_actual = ((encoder_count - last_encoder_count) * (60 * (1000 / looptime))) / 360;  // 16 pulses X 29 gear ratio = 464 counts per output shaft rev
+    speed_actual = (abs(encoder_count - last_encoder_count) * (60 * (1000 / looptime))) / 360;  // 16 pulses X 29 gear ratio = 464 counts per output shaft rev
     last_encoder_count = encoder_count;
 }
 
@@ -71,6 +85,7 @@ void pid::calculateNewPwmValue()
 
 void pid::setTargetDirection(direction direction)
 {
+    cur_dir = direction;
     switch (direction)
     {
         case stop:
@@ -126,10 +141,24 @@ void pid::setDrive(int drive_direction, int speed)
     current_mode = currently_moving_speed;
 }
 
+void pid::setSteps(uint8_t drive_direction, uint8_t speed, uint16_t steps)
+{
+    setDrive(drive_direction, speed);
+    current_mode = currently_moving_steps;
+    
+    if (drive_direction == move_direction_forward)
+        target_encoder_count = last_encoder_count + steps;
+    else
+        target_encoder_count = last_encoder_count - steps;
+
+    char out[64];
+    sprintf(out, "setSteps(%d, %d, %d); target = %d", drive_direction, speed, steps, target_encoder_count);
+    Serial.println(out);
+}
 
 void pid::printMotorInfo()
 {
-    Serial.printf("SP: %d, RPM: %d, PWM: %d, PWM_PIN: %d", speed_setpoint, speed_actual, PWM_val, _pwm_pin);
+    Serial.printf("SP: %d, RPM: %d, PWM: %d, PWM_PIN: %d, L_ENC: %d, T_ENC: %d", speed_setpoint, speed_actual, PWM_val, _pwm_pin, last_encoder_count, target_encoder_count);
     // Serial.printf("Speed_Setpoint:%d Current_Speed:%d PWM_Value:", speed_setpoint, speed_actual);
     // Serial.print(((float)PWM_val)/10);
     // Serial.print(" Kp:"); Serial.print(Kp);

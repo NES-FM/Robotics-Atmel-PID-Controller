@@ -125,12 +125,17 @@ void comm::receiveEvent(int howMany)
 
             break;
         case sizeof(move_steps_command):
-            Wire.readBytes((byte*) &_rx_move_steps_command, sizeof(move_steps_command));
+            Serial.println("aaaaaaah");
+            Wire.readBytes((byte*) &_rx_move_steps_command, 6);  //sizeof(move_steps_command));
 
             // if (Serial.available() > 0)
             { 
-                Serial.print("Driving with Motor_Num: "); Serial.print(_rx_move_steps_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_move_steps_command.speed); Serial.print(" Direction: "); Serial.print(_rx_move_steps_command.direction); Serial.print(" Steps: "); Serial.println(_rx_move_steps_command.steps); 
+                Serial.print("Move Steps with Motor_Num: "); Serial.print(_rx_move_steps_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_move_steps_command.speed); Serial.print(" Direction: "); Serial.print(_rx_move_steps_command.direction); Serial.print(" Steps: "); Serial.println(_rx_move_steps_command.steps); 
             }
+
+            both_motors[_rx_drive_command.motor_num - 1]->setSteps(_rx_move_steps_command.direction, _rx_move_steps_command.speed, _rx_move_steps_command.steps);
+
+            Serial.println("bbbbbbh");
 
             break;
         default:

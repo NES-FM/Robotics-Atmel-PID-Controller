@@ -3,15 +3,26 @@
 
 
 #include "pid.h"
-volatile long motor_l_encoder_count = 0;
-volatile long motor_r_encoder_count = 0;
-
-void motor_left_isr() { motor_l_encoder_count++; }
-void motor_right_isr() { motor_r_encoder_count++; }
+volatile int64_t motor_l_encoder_count = 0;
+volatile int64_t motor_r_encoder_count = 0;
 
 pid motor_l(PIN_MOTOR_A_1, PIN_MOTOR_A_2, PIN_MOTOR_A_ENC, true);
 pid motor_r(PIN_MOTOR_B_1, PIN_MOTOR_B_2, PIN_MOTOR_B_ENC, true);
 
+void motor_left_isr() 
+{ 
+    if (motor_l.cur_dir == pid::direction::back)
+        motor_l_encoder_count--;
+    else
+        motor_l_encoder_count++;
+}
+void motor_right_isr() 
+{ 
+    if (motor_r.cur_dir == pid::direction::back)
+        motor_r_encoder_count--; 
+    else
+        motor_r_encoder_count++;
+}
 
 #include "ard_comm.h"
 comm comunication; 
@@ -57,23 +68,6 @@ void loop() {
         motor_r.printMotorInfo();
         Serial.println("");
     }
-
-    // if ((millis() - lastChangeMillis) >= lastChangeMillisFutureTime)
-    // {
-    //     lastChangeMillis = millis();
-    //     if (lastSpeed)
-    //     {
-    //         motor_l.setTargetSpeed(0);
-    //         lastChangeMillisFutureTime = 3000;
-    //     }
-    //     else
-    //     {
-    //         motor_l.setTargetSpeed(40);
-    //         lastChangeMillisFutureTime =10000;
-    //     }
-        
-    //     lastSpeed = !lastSpeed;
-    // }
 
     comunication.tick();
 

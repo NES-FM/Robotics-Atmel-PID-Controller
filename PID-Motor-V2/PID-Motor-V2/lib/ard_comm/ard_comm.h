@@ -54,8 +54,8 @@ class comm
             uint8_t motor_num;        // + 1 byte
             uint8_t speed;            // + 1 byte
             uint8_t direction;        // + 1 byte
-            uint16_t steps;           // + 1 byte
-                                      // = 4 bytes
+            uint16_t steps;           // + 3 byte
+                                      // = 6 bytes
         };
 
         stop_command _rx_stop_command;

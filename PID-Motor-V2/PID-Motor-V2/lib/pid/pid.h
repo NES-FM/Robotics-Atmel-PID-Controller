@@ -19,6 +19,7 @@ class pid
 
         void setStop(int stop_type);
         void setDrive(int drive_direction, int speed);
+        void setSteps(uint8_t drive_direction, uint8_t speed, uint16_t steps);
 
         void setP(float p) { Kp = p; };
         void setI(float i) { Ki = i; };
@@ -27,6 +28,8 @@ class pid
         void printMotorInfo();
 
         bool first_move_after_stop = false;
+
+        direction cur_dir = off;
     private:
         void setTargetSpeed(int speed) { speed_setpoint = speed; };
         void setTargetDirection(direction direction);
@@ -38,7 +41,8 @@ class pid
 
         bool _inverted = false;
 
-        long last_encoder_count = 0;
+        int64_t last_encoder_count = 0;
+        int64_t target_encoder_count = 0;
 
         int looptime = 20;                               // How often the loop gets executed
 
