@@ -32,9 +32,6 @@ class comm
         void tick();
         void receiveEvent(int howMany);
     private:
-        pid* motor_1;
-        pid* motor_2;
-
         pid* both_motors[2];
 
         struct stop_command {
@@ -58,9 +55,9 @@ class comm
                                       // = 6 bytes
         };
 
-        stop_command _rx_stop_command;
-        drive_command _rx_drive_command;
-        move_steps_command _rx_move_steps_command;
+        stop_command _rx_stop_command[2];
+        drive_command _rx_drive_command[2];
+        move_steps_command _rx_move_steps_command[2];
 
         enum received_type {
             received_none,
@@ -69,7 +66,7 @@ class comm
             received_move_steps
         };
 
-        received_type _rx_received_type = received_none;
+        received_type _rx_received_type[2] = {received_none};
 };
 
 #endif

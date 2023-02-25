@@ -86,12 +86,11 @@ void comm::init(pid* m1, pid* m2)
 {
     Wire.begin(I2C_ADDRESS);
 
-    motor_1 = m1;
-    motor_2 = m2;
-
     both_motors[0] = m1;
     both_motors[1] = m2;
 }
+
+uint8_t motor_id = 0;
 
 void comm::receiveEvent(int howMany)
 {
@@ -103,66 +102,82 @@ void comm::receiveEvent(int howMany)
     switch (howMany)
     {
         case sizeof(stop_command):
-            Wire.readBytes((byte*) &_rx_stop_command, sizeof(stop_command));
-
-            // if (Serial.available() > 0)
-            {
-                Serial.print("Stopping with Motor_Num: "); Serial.print(_rx_stop_command.motor_num); Serial.print(" Type: "); Serial.println(_rx_stop_command.type); 
-            }
-
-            both_motors[_rx_stop_command.motor_num - 1]->setStop(_rx_stop_command.type);
-
-            break;
+            Wire.readBytes(&motor_id, 1);
+            Wire.readBytes((uint8_t*) &_rx_stop_command[motor_id-1]+1, sizeof(stop_command)-1);
+            _rx_received_type[motor_id-1] = received_stop;
+        break;
         case sizeof(drive_command):
-            Wire.readBytes((byte*) &_rx_drive_command, sizeof(drive_command));
+            Wire.readBytes(&motor_id, 1);
+            Wire.readBytes((uint8_t*) &_rx_drive_command[motor_id-1]+1, sizeof(drive_command)-1);
+            _rx_received_type[motor_id-1] = received_drive;
 
-            // if (Serial.available() > 0)
-            { 
-                Serial.print("Driving with Motor_Num: "); Serial.print(_rx_drive_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_drive_command.speed); Serial.print(" Direction: "); Serial.println(_rx_drive_command.direction); 
-            }
+        break;
+        // case sizeof(move_steps_command):
+        //     uint8_t motor_id = 0;
+        //     Wire.readBytes(&motor_id, 1);
 
-            both_motors[_rx_drive_command.motor_num - 1]->setDrive(_rx_drive_command.direction, _rx_drive_command.speed);
+        // break;
 
-            break;
-        case sizeof(move_steps_command):
-            Serial.println("aaaaaaah");
-            Wire.readBytes((byte*) &_rx_move_steps_command, 6);  //sizeof(move_steps_command));
+        // case sizeof(stop_command):
+        //     Wire.readBytes((byte*) &_rx_stop_command, sizeof(stop_command));
 
-            // if (Serial.available() > 0)
-            { 
-                Serial.print("Move Steps with Motor_Num: "); Serial.print(_rx_move_steps_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_move_steps_command.speed); Serial.print(" Direction: "); Serial.print(_rx_move_steps_command.direction); Serial.print(" Steps: "); Serial.println(_rx_move_steps_command.steps); 
-            }
+        //     // if (Serial.available() > 0)
+        //     {
+        //         Serial.print("Stopping with Motor_Num: "); Serial.print(_rx_stop_command.motor_num); Serial.print(" Type: "); Serial.println(_rx_stop_command.type); 
+        //     }
 
-            both_motors[_rx_drive_command.motor_num - 1]->setSteps(_rx_move_steps_command.direction, _rx_move_steps_command.speed, _rx_move_steps_command.steps);
+        //     both_motors[_rx_stop_command.motor_num - 1]->setStop(_rx_stop_command.type);
 
-            Serial.println("bbbbbbh");
+        //     break;
+        // case sizeof(drive_command):
+        //     Wire.readBytes((byte*) &_rx_drive_command, sizeof(drive_command));
 
-            break;
-        default:
-            _rx_received_type = received_none;
-            break;
+        //     // if (Serial.available() > 0)
+        //     { 
+        //         Serial.print("Driving with Motor_Num: "); Serial.print(_rx_drive_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_drive_command.speed); Serial.print(" Direction: "); Serial.println(_rx_drive_command.direction); 
+        //     }
+
+        //     both_motors[_rx_drive_command.motor_num - 1]->setDrive(_rx_drive_command.direction, _rx_drive_command.speed);
+
+        //     break;
+        // case sizeof(move_steps_command):
+        //     Serial.println("aaaaaaah");
+        //     Wire.readBytes((byte*) &_rx_move_steps_command, 6);  //sizeof(move_steps_command));
+
+        //     // if (Serial.available() > 0)
+        //     { 
+        //         Serial.print("Move Steps with Motor_Num: "); Serial.print(_rx_move_steps_command.motor_num); Serial.print(" Speed: "); Serial.print(_rx_move_steps_command.speed); Serial.print(" Direction: "); Serial.print(_rx_move_steps_command.direction); Serial.print(" Steps: "); Serial.println(_rx_move_steps_command.steps); 
+        //     }
+
+        //     both_motors[_rx_drive_command.motor_num - 1]->setSteps(_rx_move_steps_command.direction, _rx_move_steps_command.speed, _rx_move_steps_command.steps);
+
+        //     Serial.println("bbbbbbh");
+
+        //     break;
+        // default:
+        //     break;
     }    
 }
 
 void comm::tick()
 {
-    // if (_rx_received_type != received_none)
-    // {
-    //     switch (_rx_received_type)
-    //     {
-    //         case received_stop:
-                
-    //         case received_drive:
-                
-    //             break;
-    //         case received_move_steps:
-                
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    //     _rx_received_type = received_none;
-    // }
+    for (int i = 0; i < 2; i++)
+    {
+        switch (_rx_received_type[i])
+        {
+            case received_drive:
+            both_motors[i]->setDrive(_rx_drive_command[i].direction, _rx_drive_command[i].speed);
+            break;
+            case received_stop:
+            both_motors[i]->setStop(_rx_stop_command[i].type);
+            break;
+            // case received_move_steps:
+            // break;
+            default:
+            break;
+        }
+        _rx_received_type[i] = received_none;
+    }
 }
 
 #endif
