@@ -1,6 +1,6 @@
 #include "ard_comm.h"
 
-#ifndef comm_v2
+#ifdef comm_v1
 bool comm::received = false;
 byte comm::i2c_command = 0x00;
 byte comm::i2c_value = 0x00;
@@ -81,7 +81,9 @@ void comm::tick()
         }
     }
 }
-#else
+#endif
+
+#if defined(comm_v2) || defined(comm_v3)
 void comm::init(pid* m1, pid* m2)
 {
     Wire.begin(I2C_ADDRESS);
@@ -89,7 +91,9 @@ void comm::init(pid* m1, pid* m2)
     both_motors[0] = m1;
     both_motors[1] = m2;
 }
+#endif
 
+#ifdef comm_v2
 uint8_t motor_id = 0;
 
 void comm::receiveEvent(int howMany)
@@ -179,5 +183,35 @@ void comm::tick()
         _rx_received_type[i] = received_none;
     }
 }
+#endif
 
+#ifdef comm_v3
+void comm::receiveEvent(int howMany)
+{
+    buffer[head] = Wire.read();
+    head = (head + 1) % BUFFER_SIZE;
+    count++;
+
+    if (Wire.available() > 0)
+        this->receiveEvent(Wire.available());
+}
+
+void comm::tick()
+{
+    while (count > 0) {
+        uint8_t received_byte = buffer[tail];
+        tail = (tail + 1) % BUFFER_SIZE;
+        count--;
+        
+        // extract variables from byte
+        uint8_t motor_num = (received_byte >> 7) & 1; // extract first bit
+        uint8_t type = (received_byte >> 6) & 1; // extract second bit
+        uint8_t speed = received_byte & 0x3F; // extract remaining 6 bits
+        
+        if (speed == 0)
+            both_motors[motor_num]->setStop(type);
+        else
+            both_motors[motor_num]->setDrive(type, speed);
+    }
+}
 #endif

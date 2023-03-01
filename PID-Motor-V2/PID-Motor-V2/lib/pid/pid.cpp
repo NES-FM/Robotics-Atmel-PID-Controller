@@ -141,24 +141,25 @@ void pid::setDrive(int drive_direction, int speed)
     current_mode = currently_moving_speed;
 }
 
-void pid::setSteps(uint8_t drive_direction, uint8_t speed, uint16_t steps)
-{
-    setDrive(drive_direction, speed);
-    current_mode = currently_moving_steps;
+// void pid::setSteps(uint8_t drive_direction, uint8_t speed, uint16_t steps)
+// {
+//     setDrive(drive_direction, speed);
+//     current_mode = currently_moving_steps;
     
-    if (drive_direction == move_direction_forward)
-        target_encoder_count = last_encoder_count + steps;
-    else
-        target_encoder_count = last_encoder_count - steps;
+//     if (drive_direction == move_direction_forward)
+//         target_encoder_count = last_encoder_count + steps;
+//     else
+//         target_encoder_count = last_encoder_count - steps;
 
-    char out[64];
-    sprintf(out, "setSteps(%d, %d, %d); target = %d", drive_direction, speed, steps, target_encoder_count);
-    Serial.println(out);
-}
+//     // char out[64];
+//     // sprintf(out, "setSteps(%d, %d, %d); target = %d", drive_direction, speed, steps, target_encoder_count);
+//     // Serial.println(out);
+// }
 
 void pid::printMotorInfo()
 {
-    Serial.printf("SP: %d, RPM: %d, PWM: %d, PWM_PIN: %d, L_ENC: %d, T_ENC: %d", speed_setpoint, speed_actual, PWM_val, _pwm_pin, last_encoder_count, target_encoder_count);
+    // Serial.printf("SP: %d, RPM: %d, PWM: %d, PWM_PIN: %d, L_ENC: %d, T_ENC: %d", speed_setpoint, speed_actual, PWM_val, _pwm_pin, last_encoder_count, target_encoder_count);
+    Serial.printf("SP: %d, RPM: %d, PWM: %d, PWM_PIN: %d", speed_setpoint, speed_actual, PWM_val, _pwm_pin);
     // Serial.printf("Speed_Setpoint:%d Current_Speed:%d PWM_Value:", speed_setpoint, speed_actual);
     // Serial.print(((float)PWM_val)/10);
     // Serial.print(" Kp:"); Serial.print(Kp);

@@ -1,12 +1,12 @@
 #pragma once
 
-#define comm_v2
+#define comm_v3
 
 #include <Wire.h>
 #include "../../include/i2c_registers.h"
 #include "pid.h"
 
-#ifndef comm_v2
+#ifdef comm_v1
 class comm
 {
     public:
@@ -34,6 +34,7 @@ class comm
     private:
         pid* both_motors[2];
 
+        #ifdef comm_v2
         struct stop_command {
             uint8_t motor_num;        // + 1 byte
             uint8_t type;             // + 1 byte
@@ -67,6 +68,15 @@ class comm
         };
 
         received_type _rx_received_type[2] = {received_none};
+        #endif
+
+        #ifdef comm_v3
+        static const int BUFFER_SIZE = 16; // size of buffer
+        unsigned char buffer[BUFFER_SIZE]; // circular buffer
+        int head = 0; // index of next available position in buffer
+        int tail = 0; // index of oldest data in buffer
+        int count = 0; // number of bytes in buffer
+        #endif
 };
 
 #endif

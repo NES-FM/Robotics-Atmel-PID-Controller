@@ -16,7 +16,7 @@
 
 #define I2C_ADDRESS   0x08
 
-// -- Comm_v2 --
+// -- Comm_v2 / Comm_v3 --
 #define stop_type_stop 0
 #define stop_type_off 1
 

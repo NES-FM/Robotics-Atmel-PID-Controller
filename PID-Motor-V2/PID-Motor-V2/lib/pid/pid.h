@@ -19,7 +19,7 @@ class pid
 
         void setStop(int stop_type);
         void setDrive(int drive_direction, int speed);
-        void setSteps(uint8_t drive_direction, uint8_t speed, uint16_t steps);
+        // void setSteps(uint8_t drive_direction, uint8_t speed, uint16_t steps);
 
         void setP(float p) { Kp = p; };
         void setI(float i) { Ki = i; };
@@ -44,7 +44,7 @@ class pid
         int64_t last_encoder_count = 0;
         int64_t target_encoder_count = 0;
 
-        int looptime = 20;                               // How often the loop gets executed
+        uint32_t looptime = 20;                               // How often the loop gets executed
 
         unsigned long lastMilli = 0;                    // loop timing
 
