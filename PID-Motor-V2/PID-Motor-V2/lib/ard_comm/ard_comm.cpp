@@ -21,10 +21,10 @@ void comm::receiveEvent(int howMany)
     // }
     // i2c_value = Wire.read();    // receive byte as an integer
     
-    if (Serial.available())
-    {
-        Serial.print("Received: "); Serial.print(i2c_command); Serial.print(" "); Serial.println(i2c_value);
-    }
+    // if (Serial.available())
+    // {
+    //     Serial.print("Received: "); Serial.print(i2c_command); Serial.print(" "); Serial.println(i2c_value);
+    // }
 
     received = true;
 }
@@ -188,16 +188,19 @@ void comm::tick()
 #ifdef comm_v3
 void comm::receiveEvent(int howMany)
 {
-    buffer[head] = Wire.read();
-    head = (head + 1) % BUFFER_SIZE;
-    count++;
-
-    if (Wire.available() > 0)
-        this->receiveEvent(Wire.available());
+    while (Wire.available() > 0)
+    {
+        buffer[head] = Wire.read();
+        head = (head + 1) % BUFFER_SIZE;
+        count++;
+        delay(1); // Wait for new messages that may arrive
+    }
 }
 
 void comm::tick()
 {
+    if (Wire.available() > 0)
+        Serial.printf("Wire available: %d\r\n", Wire.available());
     while (count > 0) {
         uint8_t received_byte = buffer[tail];
         tail = (tail + 1) % BUFFER_SIZE;
@@ -208,7 +211,9 @@ void comm::tick()
         uint8_t type = (received_byte >> 6) & 1; // extract second bit
         uint8_t speed = received_byte & 0x3F; // extract remaining 6 bits
         
-        if (speed == 0)
+        if (speed == 63) // Ignore Speed 63
+            continue;
+        else if (speed == 0)
             both_motors[motor_num]->setStop(type);
         else
             both_motors[motor_num]->setDrive(type, speed);

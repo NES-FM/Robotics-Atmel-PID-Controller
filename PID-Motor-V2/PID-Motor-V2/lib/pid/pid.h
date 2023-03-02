@@ -30,9 +30,9 @@ class pid
         bool first_move_after_stop = false;
 
         direction cur_dir = off;
-    private:
         void setTargetSpeed(int speed) { speed_setpoint = speed; };
         void setTargetDirection(direction direction);
+    private:
         
         int _pin_1;
         int _pin_2;

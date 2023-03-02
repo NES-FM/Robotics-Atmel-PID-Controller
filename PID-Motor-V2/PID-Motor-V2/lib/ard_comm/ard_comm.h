@@ -1,6 +1,6 @@
 #pragma once
 
-#define comm_v3
+#define comm_v1
 
 #include <Wire.h>
 #include "../../include/i2c_registers.h"

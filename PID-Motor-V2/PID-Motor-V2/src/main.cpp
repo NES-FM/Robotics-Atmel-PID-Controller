@@ -26,7 +26,7 @@ void motor_right_isr()
 
 #include "ard_comm.h"
 comm comunication; 
-void wire_receive_event(int num_bytes) { comunication.receiveEvent(num_bytes); }
+// void wire_receive_event(int num_bytes) { comunication.receiveEvent(num_bytes); }
 
 unsigned long lastPrintMillis = 0;
 
@@ -54,7 +54,7 @@ void setup()
 
     comunication.init(&motor_l, &motor_r);
 
-    Wire.onReceive(wire_receive_event);
+    // Wire.onReceive(wire_receive_event);
 
     lastChangeMillis = millis();
 }
@@ -73,17 +73,4 @@ void loop() {
 
     motor_l.tick(motor_l_encoder_count);
     motor_r.tick(motor_r_encoder_count);
-
-    // if (Serial.available())
-    // {
-    //     String message = Serial.readStringUntil('\n');
-    //     if (message.startsWith("P"))
-    //     {
-    //         motor_l.setP(message.substring(1).toFloat());
-    //     }
-    //     else if (message.startsWith("I"))
-    //         motor_l.setI(message.substring(1).toFloat());
-    //     else if (message.startsWith("D"))
-    //         motor_l.setD(message.substring(1).toFloat());
-    // }
 }
